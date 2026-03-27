@@ -11,7 +11,7 @@
 
 ZeroExec is a production-grade **zero-trust remote execution platform** that provides secure, browser-based access to native Windows terminals with kernel-level guarantees.
 
-[![Go Version](https://img.shields.io/github/go-mod/go-version/rajveer100704/ZeroExec)](https://go.dev/)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/rajveer100704/ZeroExec?filename=gateway%2Fgo.mod)](https://go.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 🧠 System Architecture
@@ -148,4 +148,12 @@ Strong enforcement across identity, transport, and execution layers. No critical
 ### ⚡ Performance
 Stable under concurrent load with no memory leaks or crashes.
 
+##  Contributing
 
+Contributions, issues, and feature requests are welcome!
+Feel free to check out the [issues page](https://github.com/rajveer100704/ZeroExec/issues).
+
+##  Author
+
+**Rajveer**
+* GitHub: [@rajveer100704](https://github.com/rajveer100704)
