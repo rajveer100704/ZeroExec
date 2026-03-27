@@ -1,0 +1,21 @@
+# Task: Production Polish (Deployment, Config, Observability)
+
+- [x] Architecture & Deployment Design <!-- id: 70 -->
+    - [x] Document Deployment Architecture & Config Schema <!-- id: 71 -->
+    - [x] Define Packaging & Installation Workflow <!-- id: 72 -->
+- [x] Production-Grade Core Implementation <!-- id: 73 -->
+    - [x] Implement Centralized Config System ([config.go](file:///c:/Users/BIT/ZeroExec/gateway/config.go), [config.yaml](file:///c:/Users/BIT/ZeroExec/config.yaml)) <!-- id: 74 -->
+    - [x] Implement Observability (JSON Logging, `/health`, `/metrics`) <!-- id: 75 -->
+    - [x] Implement Resilient Audit Manager (Rotation, JSON Export) <!-- id: 76 -->
+    - [x] Add Graceful Shutdown & Panic Recovery <!-- id: 77 -->
+- [x] Build & Packaging <!-- id: 78 -->
+    - [x] Create PowerShell Build Script ([scripts/build.ps1](file:///c:/Users/BIT/ZeroExec/scripts/build.ps1)) <!-- id: 79 -->
+    - [x] Create Installation/Setup Script ([scripts/install.ps1](file:///c:/Users/BIT/ZeroExec/scripts/install.ps1)) <!-- id: 80 -->
+    - [x] Implement Auto-TLS Certificate Generation <!-- id: 81 -->
+- [x] Elite Documentation <!-- id: 82 -->
+    - [x] Generate Production [README.md](file:///c:/Users/BIT/ZeroExec/README.md) with Threat Model <!-- id: 83 -->
+    - [x] Generate [DEPLOYMENT.md](file:///c:/Users/BIT/ZeroExec/DEPLOYMENT.md) & [SECURITY.md](file:///c:/Users/BIT/ZeroExec/SECURITY.md) <!-- id: 84 -->
+- [x] Final Handover & verification <!-- id: 85 -->
+    - [x] Verify Full Install/Run Flow <!-- id: 86 -->
+    - [x] Verify Config Overrides & observability <!-- id: 87 -->
+    - [x] Final Project Polish <!-- id: 88 -->

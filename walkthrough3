@@ -1,0 +1,41 @@
+## 🛡️ Phase 4: Production Polish & Observability
+
+ZeroExec is now an installable, enterprise-grade system.
+
+### 🚀 Production Run
+
+1. **Build & Package**:
+   ```powershell
+   .\scripts\build.ps1
+   ```
+2. **Install**:
+   ```powershell
+   .\scripts\install.ps1
+   ```
+3. **Launch Gateway**:
+   ```powershell
+   cd C:\ZeroExec
+   .\zeroexec.exe
+   ```
+
+### 🔍 Production Verification
+
+#### 1. Config System
+Modify [C:\ZeroExec\config.yaml](file:///c:/Users/BIT/ZeroExec/config.yaml) and restart. Verify that server ports and session timeouts are correctly honored.
+
+#### 2. Observability & Health
+Examine the Gateway's console output for structured JSON logs.
+- **Health**: `https://localhost:8081/health` → `{"status":"UP"}`
+- **Metrics**: `https://localhost:8081/metrics` → `{"active_sessions":0, ...}`
+
+#### 3. Auto-TLS
+Note that on the first run, the `certs/` directory is created and a self-signed certificate is generated. Browser access will require a "Proceed (unsafe)" acknowledgement until a CA-signed cert is provided.
+
+#### 4. Audit & Lifecycle
+Audit logs in `gateway_audit.log` are now append-only and tamper-evident. Graceful shutdown (`Ctrl+C`) ensures all active Agent sessions are reaped instantly via Windows Job Objects.
+
+### 🏆 Enterprise Features Summary
+- **Zero-Trust**: RBAC enforced at every step.
+- **Resilient**: Panic recovery and graceful shutdown.
+- **Observable**: Structured JSON logs and metrics.
+- **Secure-by-Default**: Auto-TLS and unique JWT secrets on install.

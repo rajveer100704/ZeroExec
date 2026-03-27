@@ -1,0 +1,205 @@
+# ZeroExec — Complete User Walkthrough
+
+## Architecture Overview
+
+```mermaid
+graph LR
+    Browser["🌐 Browser (React + xterm.js)"] -->|WSS + JWT| Gateway["🔒 Gateway (Go)"]
+    Gateway -->|ConPTY| Agent["⚡ Agent (Windows)"]
+    Gateway -->|HTTPS| Gemini["🤖 Gemini API"]
+    Gateway -->|cloudflared| Cloudflare["☁️ Cloudflare Tunnel"]
+    Agent -->|Job Objects| Shell["💻 PowerShell"]
+```
+
+| Component | Role |
+|-----------|------|
+| **Agent** | Spawns native Win32 ConPTY shells, isolated via Job Objects |
+| **Gateway** | Auth (JWT), RBAC, rate limiting, audit, session recording, AI proxy |
+| **Frontend** | Terminal emulator (xterm.js), Dashboard, Replay, AI Chat |
+
+---
+
+## 🚀 Setup & Launch
+
+### 1. Build
+```powershell
+.\scripts\build.ps1
+```
+Produces `dist/` with `zeroexec.exe`, `zeroexec-agent.exe`, `www/`, and [config.yaml](file:///c:/Users/BIT/ZeroExec/config.yaml).
+
+### 2. Configure (Optional)
+Edit [config.yaml](file:///c:/Users/BIT/ZeroExec/config.yaml):
+```yaml
+# AI Assistant (Feature 5)
+ai:
+  api_key: "YOUR_GEMINI_API_KEY"   # or set VT_AI_KEY env var
+
+# Remote Access (Feature 3)
+tunnel:
+  enabled: true
+```
+
+### 3. Run
+```powershell
+cd C:\ZeroExec
+.\zeroexec.exe
+```
+Open **https://localhost:8081** in your browser (accept the self-signed cert).
+
+---
+
+## User Flow: All 5 Features
+
+### Feature 1: Session Dashboard
+
+**Where**: Click **Governance** tab in the header → **Live** sub-tab.
+
+**What you see**:
+- Real-time table of all active terminal sessions
+- Each row shows: Session ID, User Identity, Role badge, Status (🟢 active / 🟡 idle), Duration
+- **Terminate** button (🔴) to kill any session instantly
+
+**Who can use it**: Admin role only.
+
+**Flow**:
+```
+Header → [Governance] → Live tab → See all sessions → Click ❌ to terminate
+```
+
+---
+
+### Feature 2: Session Replay
+
+**Where**: Click **Governance** tab → **Archive** sub-tab.
+
+**What you see**:
+- Grid of recorded sessions (`.vtr` files)
+- Click **▶ Play Recording** to open the replay player
+- Full VCR controls: Play, Pause, Rewind, Seek bar, Speed (0.5x–4x)
+
+**How it works**:
+1. Every session is automatically recorded as JSONL (timestamp + terminal data)
+2. Recordings are stored in `recordings/` directory
+3. The Replay Player re-renders the terminal output at real speed
+
+**Flow**:
+```
+Header → [Governance] → Archive tab → Click [▶ Play] on a recording → Watch replay
+```
+
+---
+
+### Feature 3: Remote Access (Cloudflare Tunnel)
+
+**Where**: Header pill shows **🌐 Remote Access** when active.
+
+**Setup**:
+1. Install `cloudflared` and set `tunnel.enabled: true` in config
+2. Restart the gateway → URL appears in logs
+3. Header shows a violet **Remote Access** pill with the public URL
+4. Click the pill to copy the URL to clipboard
+
+**Security**: JWT + RBAC are still enforced. Cloudflare is a transparent pipe only.
+
+**Flow**:
+```
+config.yaml → tunnel.enabled: true → Restart → Copy URL from header → Share with remote user
+```
+
+---
+
+### Feature 4: Command RBAC
+
+**How it works** (happens automatically based on your role):
+
+| Role | What's Allowed | What's Blocked |
+|------|---------------|----------------|
+| **Viewer** | `ls`, `dir`, `pwd`, `echo`, [cat](file:///c:/Users/BIT/ZeroExec/gateway/middleware.go#21-37), `whoami`, `Get-*` | Everything else — **cannot type at all** |
+| **Operator** | Almost everything | [rm](file:///c:/Users/BIT/ZeroExec/frontend/src/components/Terminal.tsx#13-117), `del`, `rmdir`, `shutdown`, `sudo`, [reg](file:///c:/Users/BIT/ZeroExec/gateway/session_controller.go#36-41), `schtasks` |
+| **Admin** | ✅ Everything | Nothing |
+
+**What happens when blocked**:
+1. You type a command like `rm file.txt` as an Operator
+2. You press Enter
+3. The gateway sends `Ctrl+C` to cancel the pending command in the shell
+4. A red `🚫 Command Blocked` message appears in the terminal
+5. The event is logged in the audit trail
+
+**Flow**:
+```
+User types command → Presses Enter → Gateway validates → ✅ Allowed: executes
+                                                        → 🚫 Denied: Ctrl+C + error message
+```
+
+---
+
+### Feature 5: AI Assistant
+
+**Where**: Click the **✨ AI** button in the top-right header.
+
+**What you see**:
+- Sliding glass panel with a chat interface
+- Type questions about commands, errors, or terminal output
+- AI automatically sees your last ~2000 chars of terminal output as context
+
+**Example interactions**:
+- *"What does this error mean?"* → Analyzes your recent terminal output
+- *"How do I find large files?"* → Suggests `Get-ChildItem -Recurse | Sort-Object Length -Descending | Select -First 10`
+- *"Is this command safe?"* → Warns about destructive operations
+
+**Setup**: Set `VT_AI_KEY=<your-gemini-api-key>` as an env variable, or add to [config.yaml](file:///c:/Users/BIT/ZeroExec/config.yaml).
+
+**Flow**:
+```
+Terminal → Run commands → Click [✨ AI] → Ask a question → AI responds with context
+```
+
+---
+
+## End-to-End User Journey
+
+```mermaid
+sequenceDiagram
+    participant U as User (Browser)
+    participant G as Gateway
+    participant A as Agent
+    participant AI as Gemini API
+
+    U->>G: GET /auth/token
+    G-->>U: JWT (role=operator)
+    U->>G: WS /ws?token=...
+    G->>A: StartSession (ConPTY)
+    A-->>G: Session ID + PTY handle
+    G-->>U: Connected ✅
+
+    U->>G: {"type":"input","data":"ls\r"}
+    G->>G: RBAC Check (allowed ✅)
+    G->>A: WriteInput("ls\r")
+    A-->>G: ReadOutput (file listing)
+    G-->>U: {"type":"output","data":"..."}
+    G->>G: Record to .vtr file
+
+    U->>G: {"type":"input","data":"rm x\r"}
+    G->>G: RBAC Check (denied 🚫)
+    G->>A: WriteInput("\x03") (Ctrl+C)
+    G-->>U: {"type":"error","data":"Command Blocked"}
+
+    U->>G: POST /ai/chat (question + context)
+    G->>AI: Gemini API request
+    AI-->>G: Response
+    G-->>U: {"reply":"..."}
+```
+
+## API Endpoints Reference
+
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/ws` | WS | JWT | Terminal WebSocket |
+| `/health` | GET | — | System + tunnel status |
+| `/metrics` | GET | — | Session/error counters |
+| `/auth/token` | GET | — | Dev token (MVP only) |
+| `/admin/sessions` | GET | Admin | List active sessions |
+| `/admin/terminate` | POST | Admin | Kill a session |
+| `/admin/recordings` | GET | Admin | List `.vtr` recordings |
+| `/admin/recording` | GET | Admin | Fetch recording file |
+| `/ai/chat` | POST | JWT | AI assistant proxy |

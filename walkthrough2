@@ -1,0 +1,38 @@
+## 🛡️ Phase 3: Enterprise Hardening & RBAC
+
+ZeroExec is now an elite-tier remote execution platform.
+
+### 🔍 Phase 3 Verification
+
+#### 1. RBAC (Viewer vs Operator)
+- **Operator**: (Default) Everything works as before.
+- **Viewer**: Modify [gateway/cmd/gateway/main.go](file:///c:/Users/BIT/ZeroExec/gateway/cmd/gateway/main.go) temporarily to use `RoleViewer` in the dev token. Verify that you can see the terminal but typing anything results in an "Insufficient permissions" error message.
+
+#### 2. Session Governance (Admin API)
+Use `curl` or a REST client to test administrative controls:
+```bash
+# Get Admin Token (requires generating a token with RoleAdmin)
+# Then list sessions:
+curl -X GET "http://localhost:8081/admin/sessions?token=<ADMIN_TOKEN>"
+
+# Terminate a session:
+curl -X POST "http://localhost:8081/admin/terminate?token=<ADMIN_TOKEN>&id=<SESSION_ID>"
+```
+
+#### 3. Abuse Protection
+- **Rate Limiting**: Try to paste a massive block of text into the terminal. Verify the Gateway throttles the input and sends a "Rate limit exceeded" message.
+- **Payload Validation**: Any non-JSON message or message exceeding 8KB (implied by WS buffer) will be rejected.
+
+#### 4. Lifecycle Enforcement
+- **Idle Timeout**: Leave the terminal untouched for 10 minutes. The session will be automatically reaped.
+- **Max Duration**: After 1 hour, the session will be terminated regardless of activity.
+- **Heartbeat**: Open the browser's Network tab. You will see WebSocket `ping/pong` frames every 30 seconds ensuring connection health.
+
+### 🏆 Final System Status
+| Layer | Feature | Status |
+| :--- | :--- | :--- |
+| **OS** | ConPTY + Job Objects | ✅ Hardened |
+| **Network** | Structured JSON v1.0 | ✅ Versioned |
+| **Identity** | Multi-Role JWT | ✅ RBAC Ready |
+| **Resilience** | Backpressure + Rate Limit | ✅ Stable |
+| **Governance** | Admin Control API | ✅ Enterprise |

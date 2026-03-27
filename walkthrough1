@@ -1,0 +1,34 @@
+## 🚀 Phase 2: Production-Grade Gateway
+
+ZeroExec is now structured as a modular, secure system.
+
+### 1. Start the System
+Navigate to the root of the project and run each in a separate terminal:
+
+**A. Start Agent**
+```bash
+cd agent
+go run .
+```
+
+**B. Start Gateway**
+```bash
+cd gateway/cmd/gateway
+go run .
+```
+
+**C. Start Frontend**
+```bash
+cd frontend
+npm run dev
+```
+
+### 🔍 Verification Steps
+1. **Handshake Auth**: Open the browser. The UI should show "Establishing Secure Handshake" while fetching the JWT from the Gateway.
+2. **Terminal Session**: Type commands in the terminal. Verify they are sent as JSON `{type: "input", data: "..."}` in the Network tab.
+3. **Audit Log**: Check `gateway/gateway_audit.log` for structured session metadata.
+4. **Isolation**: Kill the `agent` process. Verify all `powershell.exe` instances are reaped instantly via Job Objects.
+
+### 🔐 Security & Failure Handling
+- **JWT Expiry**: Tokens are valid for 1 hour. Access will be denied after expiry.
+- **Fail-Safe**: Closing the browser tab triggers a WebSocket disconnect, which signals the Gateway to stop the Agent session, ensuring full resource cleanup.

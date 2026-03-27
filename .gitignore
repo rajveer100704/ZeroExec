@@ -1,0 +1,52 @@
+# Node & Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Go workspace & binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+config.yaml
+
+# Assets & Recordings
+recordings/
+*.vtr
+
+# Audit & Logs
+gateway_audit.log
+*.log
+
+# Certs (Development SSL)
+certs/
+*.pem
+*.key
+
+# Editor & OS
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Project Specific (Old Names)
+vibetunnel.exe
+vibetunnel-agent.exe
+ZeroExec.exe
+ZeroExec-agent.exe
