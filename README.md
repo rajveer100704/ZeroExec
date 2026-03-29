@@ -1,7 +1,7 @@
 # 🚀 ZeroExec
 ### Zero-Trust, Windows-Native Remote Execution Platform
 
-# 🛡️ ZeroExec (formerly VibeTunnel)
+# 🛡️ ZeroExec 
 
 > A zero-trust, kernel-isolated remote execution gateway for Windows. Connect to native terminals securely through the browser.
 
@@ -126,6 +126,13 @@ ZeroExec focuses on:
 *Built for security-first systems, modern DevOps workflows, and controlled remote execution.*
 
 ## 🧪 System Validation Report (Staff Review)
+
+## Use Case: AI Agent Execution Engine
+
+ZeroExec can be used as a backend execution layer for:
+- Running LLM-generated code safely
+- Executing tool-calling workflows in AI agents
+- Automating multi-step pipelines with isolation and monitoring
 
 ### ✅ Summary
 ZeroExec was tested across functional, stress, and failure scenarios. The system demonstrates strong guarantees in security, process isolation, and session lifecycle management.
